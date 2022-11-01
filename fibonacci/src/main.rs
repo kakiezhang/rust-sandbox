@@ -3,6 +3,12 @@ fn main() {
     fib_loop(n);
     fib_while(n);
     fib_for(n);
+
+    // close interval at the end of array
+    let arr = [54, 18, 66, 37, 23, 89];
+    for i in &arr[0..=2] {
+        println!("{:?}", i);
+    }
 }
 
 fn fib_loop(end: u32) {
@@ -11,6 +17,10 @@ fn fib_loop(end: u32) {
     let mut b = 1;
     let mut x = 0;
 
+    // c should be read before writen, or compiler will think that c will be overwitten before read
+    // one var should be read after being declared
+    let mut c = 0;
+
     loop {
         if x >= end {
             break;
@@ -18,7 +28,7 @@ fn fib_loop(end: u32) {
             x += 1;
         }
 
-        let c = a + b;
+        c = a + b;
         a = b;
         b = c;
     }
