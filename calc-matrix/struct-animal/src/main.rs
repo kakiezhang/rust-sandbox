@@ -1,33 +1,28 @@
 fn main() {
     // if let
-    let x = action::eat;
-    if let action::run = x {
-        println!("{:?}", x);
+    let x = Animal::Drink(10);
+    if let Animal::Drink(y) = x {
+        println!("y: {:?}", y);
     } else {
-        println!("{:?}", "hi");
+        println!("{:?}", "no_0");
     }
 
     // normal match
-    match x {
-        action::run => println!("yes"),
-        _ => println!("no"),
+    let y = Animal::Eat(food { name: 2 });
+    match y {
+        Animal::Eat(z) => println!("z: {:?}", z),
+        _ => println!("no_1"),
     }
 }
 
 #[derive(Debug)]
-enum action {
-    run,
-    eat,
-    drink,
+enum Animal {
+    Run(u32),
+    Eat(food),
+    Drink(u32),
 }
 
-// #[derive(Debug)]
-// struct cat {
-//     field: Type
-// }
-
-// #[derive(Debug)]
-// struct animal {
-//     id: u8,
-//     name: String,
-// }
+#[derive(Debug)]
+struct food {
+    name: u32,
+}
