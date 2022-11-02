@@ -9,6 +9,11 @@ fn main() {
     for i in &arr[0..=2] {
         println!("{:?}", i);
     }
+
+    let (x0, y0, z0) = (1, 2, 0);
+    let (x1, y1, z1) = next(x0, y0, z0);
+    println!("x0: {:?}, y0: {:?}, z0: {:?}", x0, y0, z0);
+    println!("x1: {:?}, y1: {:?}, z1: {:?}", x1, y1, z1);
 }
 
 fn fib_loop(end: u32) {
@@ -59,11 +64,16 @@ fn fib_for(end: u32) {
     let (mut a, mut b, mut c) = (1, 1, 0);
 
     for _x in 0..end {
-        c = a + b;
-        a = b;
-        b = c;
+        (a, b, c) = next(a, b, c);
     }
 
     println!("a: {:?}", a);
     println!("b: {:?}", b);
+}
+
+fn next(mut a: u32, mut b: u32, mut c: u32) -> (u32, u32, u32) {
+    c = a + b;
+    a = b;
+    b = c;
+    (a, b, c)
 }
