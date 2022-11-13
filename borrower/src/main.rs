@@ -15,6 +15,8 @@ fn main() {
         "vs1 address: {:p}, &vs address: {:p} | {:p}, {:p}, {:p}",
         vs1, &vs, &&vs, &vs1, &&vs
     );
+
+    println!("items: {:p}, {:p}", &vs[0], &vs[1]);
 }
 
 fn sum(data: &Vec<i32>) -> i32 {
