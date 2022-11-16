@@ -1,26 +1,33 @@
-#[derive(Debug)]
-enum Voice {
-    A(Haha),
-    E(Hehe),
-}
+use std::rc::Rc;
 
 #[derive(Debug)]
-struct Haha {
+struct Node {
     name: String,
+    next: Option<Rc<Node>>,
 }
 
-#[derive(Debug)]
-struct Hehe {
-    name: String,
+trait Action {
+    fn new(_: &str) -> Node;
+    fn update_next(&mut self, _: Node);
+    fn get_next(&self) -> Rc<Node>;
+}
+
+impl Action for Node {
+    fn new(name: &str) -> Node {
+        return Node {
+            name: name.into(),
+            next: None,
+        };
+    }
+    fn update_next(&mut self, next: Node) {
+        self.next = Some(Rc::new(next));
+    }
+    fn get_next(&self) -> Rc<Node> {
+        self.next.as_ref().unwrap().clone()
+    }
 }
 
 fn main() {
-    let v = Voice::A(Haha {
-        name: "haha1".to_string(),
-    });
-    let a = match v {
-        Voice::A(ha) => ha.name,
-        Voice::E(he) => he.name,
-    };
-    println!("a: {:?}", a);
+    let a: Node = Node::new("A");
+    println!("{:?}", a);
 }
