@@ -28,6 +28,8 @@ impl Action for Node {
 }
 
 fn main() {
-    let a: Node = Node::new("A");
+    let mut a: Node = Node::new("A");
+    let b = Node::new("B");
+    a.update_next(b);
     println!("{:?}", a);
 }
