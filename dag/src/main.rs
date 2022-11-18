@@ -8,7 +8,7 @@ struct Node {
 
 trait Action {
     fn new(_: &str) -> Node;
-    fn update_next(&mut self, _: Node);
+    fn update_next(&mut self, _: Rc<Node>);
     fn get_next(&self) -> Rc<Node>;
 }
 
@@ -19,57 +19,31 @@ impl Action for Node {
             next: None,
         };
     }
-    fn update_next(&mut self, next: Node) {
-        self.next = Some(Rc::new(next));
+    fn update_next(&mut self, next: Rc<Node>) {
+        self.next = Some(next);
     }
     fn get_next(&self) -> Rc<Node> {
-        // Rc::clone(self.next.as_ref().unwrap())
         self.next.as_ref().unwrap().clone()
     }
 }
 
 fn main() {
     let a: Node = Node::new("A");
+    println!("a: {:?} {:p}", a, &a);
+
     let mut b = Node::new("B");
     let mut c = Node::new("C");
-    b.update_next(a);
-    c.update_next(b);
+    b.update_next(Rc::new(a));
 
-    // let mut e = Node::new("E");
-    // e.update_next(b); // b has moved, can't be borrowed here
+    let bb = b.next.as_ref().unwrap().clone();
+    println!("bb: {:?} {:p}", bb, &bb);
 
-    println!("{:?}", c);
-
-    // println!("{:?}", c.next.unwrap());
-    // println!("{:?}", c.next);
-
-    // println!(
-    //     "c: {:?}, addr: {:p}",
-    //     c.next.as_ref().unwrap(),
-    //     c.next.as_ref().unwrap()
-    // );
-
-    // let cb1 = Some(c.get_next());
-    // println!(
-    //     "cb1: {:?}, addr: {:p}",
-    //     cb1.as_ref().unwrap(),
-    //     cb1.as_ref().unwrap()
-    // );
+    c.update_next(Rc::new(b));
 
     let mut d = Node::new("D");
 
-    let cb4 = c.get_next();
-    let cb2: Node = match Rc::try_unwrap(cb4) {
-        Ok(v) => {
-            // println!("v: {:?} addr: {:p}", v, &v);
-            v
-        }
-        Err(e) => panic!("err: {:?} hhhhh", e),
-    };
+    d.update_next(bb);
 
-    // let cb3 = Rc::try_unwrap(c.get_next()).unwrap();
-
-    // d.update_next(cb3);
-
-    println!("{:?}", d);
+    println!("d: {:?}", d);
+    println!("c: {:?}", c);
 }
