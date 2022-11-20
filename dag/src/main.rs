@@ -28,22 +28,42 @@ impl Action for Node {
 }
 
 fn main() {
-    let a: Node = Node::new("A");
-    println!("a: {:?} {:p}", a, &a);
+    {
+        let a: Node = Node::new("A");
+        println!("a: {:?} {:p}", a, &a);
 
-    let mut b = Node::new("B");
-    let mut c = Node::new("C");
-    b.update_next(Rc::new(a));
+        let mut b = Node::new("B");
+        let mut c = Node::new("C");
+        b.update_next(Rc::new(a));
 
-    let bb = b.next.as_ref().unwrap().clone();
-    println!("bb: {:?} {:p}", bb, &bb);
+        let bb = b.get_next();
+        println!("bb: {:?} {:p}", bb, &bb);
 
-    c.update_next(Rc::new(b));
+        c.update_next(Rc::new(b));
 
-    let mut d = Node::new("D");
+        let mut d = Node::new("D");
 
-    d.update_next(bb);
+        d.update_next(bb);
 
-    println!("d: {:?}", d);
-    println!("c: {:?}", c);
+        println!("d: {:?}", d);
+        println!("c: {:?}", c);
+
+        // cannot borrow data in an `Rc` as mutable
+        let e = Node::new("E");
+        let db = d.get_next();
+        // Rc is a readonly refence, you cannot get the mutable borrow of the inside node to
+        // modify itself
+        db.update_next(Rc::new(e));
+    }
+
+    // {
+    //     let a = Rc::new(8);
+    //     let b = a.clone();
+    //     let c = a.clone();
+    //     // Rc object address are the same
+    //     // a, b, c ref address varies
+    //     println!("{:?}, {:p}, {:p}", a, a, &a);
+    //     println!("{:?}, {:p}, {:p}", b, b, &b);
+    //     println!("{:?}, {:p}, {:p}", c, c, &c);
+    // }
 }
