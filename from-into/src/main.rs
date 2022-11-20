@@ -6,11 +6,42 @@ fn main() {
     println!("c: {:?}, {:p}", c, &c);
 
     // c1 & c2 are the same ways，both execute AnimalDto::from method
-    let c1: AnimalDto = c.clone().into();
-    println!("c1: {:?}, {:p}", c1, &c1);
+    let mut c1: AnimalDto = c.clone().into();
+    println!(
+        "c1: {:?}, {:p} | name: {:?}, {:p}",
+        c1,
+        &c1,
+        c1.name,
+        c1.name.as_ptr()
+    );
 
+    // c.clone() make c and its field name all to clone
     let c2 = AnimalDto::from(c.clone());
-    println!("c2: {:?}, {:p}", c2, &c2);
+    println!(
+        "c2: {:?}, {:p} | name: {:?}, {:p}",
+        c2,
+        &c2,
+        c2.name,
+        c2.name.as_ptr(),
+    );
+
+    c1.name = String::from("miao2");
+
+    println!(
+        "after change c1: {:?}, {:p} | name: {:?}, {:p}",
+        c1,
+        &c1,
+        c1.name,
+        c1.name.as_ptr()
+    );
+
+    println!(
+        "after change c2: {:?}, {:p} | name: {:?}, {:p}",
+        c2,
+        &c2,
+        c2.name,
+        c2.name.as_ptr(),
+    );
 
     // c3 & c4 are the same ways
     let c3: Animal = c.clone().into();
