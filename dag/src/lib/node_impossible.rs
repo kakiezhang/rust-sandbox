@@ -1,22 +1,24 @@
 #[derive(Debug)]
-struct Node {
+struct Node<'a> {
     name: String,
-    next: Option<*mut Node>,
+    next: Option<&'a mut Node<'a>>,
 }
 
-impl Node {
+impl<'a> Node<'a> {
     fn new(name: &str) -> Node {
         return Node {
             name: name.into(),
             next: None,
         };
     }
-    fn update_next(&mut self, next: *mut Node) {
+
+    fn update_next(&mut self, next: &'a mut Node<'a>) {
         self.next = Some(next);
     }
-    fn get_next(&self) -> *mut Node {
-        self.next.unwrap()
-    }
+
+    // fn get_next(&self) -> &mut Node {
+    //     self.next
+    // }
 }
 
 pub fn test() {
@@ -25,27 +27,15 @@ pub fn test() {
     let mut c = Node::new("C");
 
     b.update_next(&mut a);
-    c.update_next(&mut b);
-
-    println!("c: {:?}, {:p}", c, &c);
     println!("b: {:?}, {:p}", b, &b);
 
-    let mut d = Node::new("D");
-    d.update_next(&mut b);
-    println!("d: {:?}, {:p}", d, &d);
+    c.update_next(&mut b);
+    println!("c: {:?}, {:p}", c, &c);
 
-    let mut e = Node::new("E");
-    println!("e: {:?}, {:p}", e, &e);
-    let db = d.get_next();
-    unsafe { (*db).update_next(&mut e) };
-    // unsafe {
-    //     let h = &mut (*db);
-    //     h.update_next(&mut e)
-    // };
-    println!("d: {:?}, {:p}", d, &d);
-    println!(
-        "db: {:?}, {:p}",
-        unsafe { (*d.next.unwrap()).name.clone() },
-        &(d.next)
-    );
+    let cb = c.next.unwrap();
+    println!("cb: {:?}, {:p}", cb, &cb);
+
+    // let mut d = Node::new("D");
+    // d.update_next(&mut b); // cannot borrow `b` as mutable more than once at a time  first borrow later used at line 32
+    // println!("d: {:?}, {:p}", d, &d);
 }
