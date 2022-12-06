@@ -8,10 +8,17 @@ fn main() {
 
     let d = Dog { name: "Wang" };
     collect1(d);
+
+    let mut vs: Vec<Box<dyn Animal>> = Vec::new();
+    let c1 = Cat { name: "Miao_1" };
+    let d1 = Dog { name: "Wang_1" };
+    vs.push(Box::new(c1));
+    vs.push(Box::new(d1));
+    collect2::<dyn Animal>(vs);
 }
 
 trait Animal {
-    fn eat() -> &'static str;
+    fn eat(&self) -> &'static str;
 }
 
 #[derive(Debug)]
@@ -20,7 +27,7 @@ struct Cat {
 }
 
 impl Animal for Cat {
-    fn eat() -> &'static str {
+    fn eat(&self) -> &'static str {
         "fish"
     }
 }
@@ -31,7 +38,7 @@ struct Dog {
 }
 
 impl Animal for Dog {
-    fn eat() -> &'static str {
+    fn eat(&self) -> &'static str {
         "shit"
     }
 }
@@ -47,4 +54,10 @@ where
     T: Debug,
 {
     println!("{:?}", a);
+}
+
+fn collect2<T: Animal + ?Sized>(vs: Vec<Box<dyn Animal>>) {
+    for v in vs {
+        println!("{:?}", v.eat());
+    }
 }
