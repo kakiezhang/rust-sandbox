@@ -40,6 +40,8 @@ fn collect0(a: impl Animal + Debug) {
     println!("{:?}", a);
 }
 
+// collect1 equals collect0
+// "impl Animal" equals "<T: Animal>(a: T)"
 fn collect1<T: Animal>(a: T)
 where
     T: Debug,
