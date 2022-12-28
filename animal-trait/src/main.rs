@@ -33,11 +33,11 @@ impl Animal for Cat {
 }
 
 #[derive(Debug)]
-struct Dog {
-    name: &'static str,
+struct Dog<'a> {
+    name: &'a str,
 }
 
-impl Animal for Dog {
+impl<'a> Animal for Dog<'a> {
     fn eat(&self) -> &'static str {
         "shit"
     }

@@ -1,4 +1,10 @@
 fn main() {
+    // test_dto();
+    // test0()
+    test1();
+}
+
+fn test_dto() {
     let c = Animal {
         id: 1,
         name: "miao".to_string(),
@@ -42,6 +48,14 @@ fn main() {
         c2.name,
         c2.name.as_ptr(),
     );
+}
+
+fn test0() {
+    let c = Animal {
+        id: 1,
+        name: "miao".to_string(),
+    };
+    println!("c: {:?}, {:p}", c, &c);
 
     // c3 & c4 are the same ways
     let c3: Animal = c.clone().into();
@@ -49,6 +63,17 @@ fn main() {
 
     let c4 = Animal::from(c);
     println!("c4: {:?}, {:p}", c4, &c4);
+}
+
+fn test1() {
+    let c0 = &Cat {
+        id: 2,
+        name: "miumiu".into(),
+    };
+
+    let c1 = Cat::new();
+    println!("{:?}", &c1);
+    t1(c1);
 }
 
 #[derive(Debug, Clone)]
@@ -71,4 +96,23 @@ impl From<Animal> for AnimalDto {
             name: a.name.into(),
         }
     }
+}
+
+#[derive(Debug)]
+struct Cat<'a> {
+    id: u32,
+    name: &'a str,
+}
+
+impl<'a> Cat<'a> {
+    fn new() -> Self {
+        Cat {
+            id: 8,
+            name: "hello",
+        }
+    }
+}
+
+fn t1(c: Cat) {
+    println!("{:?}", c);
 }
