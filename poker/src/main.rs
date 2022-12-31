@@ -2,6 +2,11 @@ use std::cmp::Ordering;
 use std::cmp::{PartialEq, PartialOrd};
 
 #[derive(Debug)]
+enum CardStyle {
+    Threes(Threes),
+}
+
+#[derive(Debug)]
 struct Threes(Box<[[Card; 3]]>);
 
 #[derive(Debug)]
@@ -11,52 +16,97 @@ struct ThreeWithOnes(Box<[([Card; 3], [Card; 1])]>);
 struct ThreeWithTwos(Box<[([Card; 3], [Card; 2])]>);
 
 #[derive(Debug)]
-struct Chain(Box<[Card]>);
+struct Chain(Box<Vec<Card>>);
 
 #[derive(Debug)]
-struct Pairs(Box<[[Card; 2]]>);
+struct Pairs(Box<Vec<[Card; 2]>>);
 
 trait Suit {
-    fn suit(&self) -> bool;
+    type Error;
+    fn suit(&mut self, _: Box<Vec<Card>>) -> Option<Self::Error>;
 }
 
 impl Suit for Chain {
-    fn suit(&self) -> bool {
-        if self.0.len() < 5 {
-            return false;
+    type Error = &'static str;
+
+    fn suit(&mut self, cs: Box<Vec<Card>>) -> Option<Self::Error> {
+        if cs.len() < 5 {
+            return Some("not reach 5 elements.");
         }
 
-        let mut v1 = vec![Card::default(); self.0.len()];
-        v1.clone_from_slice(&self.0);
+        let mut v = vec![Card::default(); cs.len()];
+        v.clone_from_slice(&cs);
 
-        // println!("before sort, v1: {:?}", v1);
-        v1.sort_by(|x, y| x.partial_cmp(y).unwrap());
-        // println!("after sort, v1: {:?}", v1);
+        // println!("before sort, v: {:?}", v);
+        v.sort_by(|x, y| x.partial_cmp(y).unwrap());
+        // println!("after sort, v: {:?}", v);
 
-        let mut m = v1[0].unwrap_point();
-        for x in v1 {
+        let mut m = v[0].unwrap_point();
+        for x in &v {
             let xp = x.unwrap_point();
             if m != xp {
-                return false;
+                return Some("not continous.");
             }
             m = xp + 1;
         }
 
-        true
+        self.0 = Box::new(v);
+        None
     }
 }
 
 impl Suit for Pairs {
-    fn suit(&self) -> bool {
-        self.0.len() >= 3
+    type Error = &'static str;
+
+    fn suit(&mut self, cs: Box<Vec<Card>>) -> Option<Self::Error> {
+        if cs.len() < 2 {
+            return Some("chain pairs number must be ge 2.");
+        }
+        if cs.len() == 4 {
+            return Some("chain pairs number can't be 4.");
+        }
+        if cs.len() % 2 == 1 {
+            return Some("chain pairs number must be plural.");
+        }
+
+        let mut v = vec![Card::default(); cs.len()];
+        v.clone_from_slice(&cs);
+
+        // println!("before sort, v: {:?}", v);
+        v.sort_by(|x, y| x.partial_cmp(y).unwrap());
+        // println!("after sort, v: {:?}", v);
+
+        let mut v2 = vec![[Card::default(); 2]; cs.len() / 2];
+        let mut m1 = v[0].unwrap_point();
+        let mut m2 = v[1].unwrap_point();
+        let mut i = 0;
+
+        while i < cs.len() {
+            let xp = v[i].unwrap_point();
+            let yp = v[i + 1].unwrap_point();
+
+            if xp != yp || m1 != m2 {
+                return Some("not a pair.");
+            }
+
+            if m1 != xp {
+                return Some("not continous.");
+            }
+
+            v2[i / 2] = [v[i], v[i + 1]];
+
+            m1 = xp + 1;
+            m2 = m1;
+            i += 2;
+        }
+
+        self.0 = Box::new(v2);
+
+        None
     }
 }
 
-trait Upper {
-    fn up(&self) -> u8;
-}
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 struct Card {
     point: Point,
     color: Color,
@@ -80,7 +130,7 @@ impl Card {
             Point::Five(_) => Point::Five(5),
             Point::Four(_) => Point::Four(4),
             Point::Three(_) => Point::Three(3),
-            Point::Null(_) => Point::Null(0),
+            Point::None => Point::None,
         };
 
         Card {
@@ -91,8 +141,8 @@ impl Card {
 
     fn default() -> Card {
         Card {
-            point: Point::Null(0),
-            color: Color::Null,
+            point: Point::None,
+            color: Color::None,
         }
     }
 
@@ -113,7 +163,7 @@ impl Card {
             Point::Five(x) => x,
             Point::Four(x) => x,
             Point::Three(x) => x,
-            Point::Null(_) => 0,
+            Point::None => 0,
         }
     }
 }
@@ -155,7 +205,7 @@ impl PartialOrd for Card {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 enum Point {
     GoldenJoker(GoldenJoker),
     SilverJoker(SilverJoker),
@@ -172,7 +222,7 @@ enum Point {
     Five(Five),
     Four(Four),
     Three(Three),
-    Null(Null),
+    None,
 }
 
 type GoldenJoker = u8;
@@ -191,15 +241,13 @@ type Five = u8;
 type Four = u8;
 type Three = u8;
 
-type Null = u8;
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 enum Color {
     Spades,
     Plum,
     Square,
     Hearts,
-    Null,
+    None,
 }
 
 fn main() {
@@ -213,11 +261,15 @@ fn main() {
 
     let t5 = Card::new(Point::Ace(0), Color::Hearts);
 
-    let pc = Chain(Box::new([t1, t2, t3, t4, t5]));
+    println!("{:?}", t1 < t2);
 
-    println!("Chain.suit(): {:?}", pc.suit());
+    let mut pc = Chain(Box::new(vec![]));
+    let ce = pc.suit(Box::new(vec![t1, t2, t3, t4, t5]));
+    println!("Chain: {:?}", pc);
+    println!("ce: {:?}", ce);
 
-    // let a: Ten = 10;
-    // let b: Jack = 11;
-    // println!("{:?}", b > a);
+    let mut pp = Pairs(Box::new(vec![]));
+    let pe = pp.suit(Box::new(vec![t3, t2, t4, t3, t4, t2]));
+    println!("Pair: {:?}", pp);
+    println!("pe: {:?}", pe);
 }
