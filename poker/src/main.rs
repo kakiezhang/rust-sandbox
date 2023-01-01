@@ -1,5 +1,46 @@
+use rand::prelude::*;
 use std::cmp::Ordering;
 use std::cmp::{PartialEq, PartialOrd};
+
+#[derive(Debug)]
+struct Judger {}
+
+impl Judger {
+    fn shuffle() -> Box<Vec<Card>> {
+        let points = [
+            Point::BigTwo(0),
+            Point::Ace(0),
+            Point::King(0),
+            Point::Queen(0),
+            Point::Jack(0),
+            Point::Ten(0),
+            Point::Nine(0),
+            Point::Eight(0),
+            Point::Seven(0),
+            Point::Six(0),
+            Point::Five(0),
+            Point::Four(0),
+            Point::Three(0),
+        ];
+        let colors = [Color::Spades, Color::Plum, Color::Square, Color::Hearts];
+
+        let mut vs: Vec<Card> = Vec::new();
+        vs.push(Card::new(Point::GoldenJoker(0), Color::None));
+        vs.push(Card::new(Point::SilverJoker(0), Color::None));
+
+        for p in points {
+            for c in colors {
+                let t = Card::new(p, c);
+                vs.push(t);
+            }
+        }
+
+        let mut rng = rand::thread_rng();
+        vs.shuffle(&mut rng);
+
+        Box::new(vs)
+    }
+}
 
 #[derive(Debug)]
 enum CardStyle {
@@ -272,4 +313,8 @@ fn main() {
     let pe = pp.suit(Box::new(vec![t3, t2, t4, t3, t4, t2]));
     println!("Pair: {:?}", pp);
     println!("pe: {:?}", pe);
+
+    let vs = Judger::shuffle();
+    println!("judger shuffle: {:?}", vs);
+    println!("card num: {:?}", vs.len());
 }
