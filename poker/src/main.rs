@@ -51,6 +51,7 @@ impl Deck {
 struct Player<'a> {
     id: u8,
     name: &'a str,
+    is_lord: bool,
     cards: Box<Vec<Card>>,
 }
 
@@ -59,6 +60,7 @@ impl<'a> Player<'a> {
         Player {
             id,
             name,
+            is_lord: false,
             cards: Box::new(vec![]),
         }
     }
@@ -67,17 +69,61 @@ impl<'a> Player<'a> {
 #[derive(Debug)]
 struct Judger {
     cards: Box<Vec<Card>>,
+    lords: Box<Vec<Card>>,
 }
 
 impl Judger {
     fn new(vs: Box<Vec<Card>>) -> Judger {
-        Judger { cards: vs }
+        Judger {
+            cards: vs,
+            lords: Box::new(vec![]),
+        }
     }
 
     fn shuffle(&mut self) {
         let mut rng = rand::thread_rng();
         self.cards.shuffle(&mut rng);
     }
+
+    fn reserve(&mut self, cnt: u8) {
+        let mut i = 0;
+
+        while i < cnt {
+            let mut rng = rand::thread_rng();
+            let x = rng.gen_range(0..self.cards.len());
+            let t = self.cards.remove(x);
+            self.lords.push(t);
+            i += 1;
+        }
+    }
+
+    fn deal_lord(&mut self, p: &mut Player) {
+        let mut next = true;
+        while next {
+            next = match self.lords.pop() {
+                Some(t) => {
+                    p.cards.push(t);
+                    true
+                }
+                None => false,
+            }
+        }
+        p.is_lord = true;
+    }
+
+    // fn cut(&mut self) {
+    //     let mut rng = rand::thread_rng();
+    //     let x: u8 = rng.gen_range(0..(self.cards.len() as u8));
+
+    //     let mcnt = self.cards.len() / 2;
+    //     let mut i = mcnt;
+    //     while i < self.cards.len() {
+    //         let tmp = self.cards[i];
+    //         self.cards[i] = self.cards[i - mcnt];
+    //         self.cards[i - mcnt] = tmp;
+    //         i += 1;
+    //     }
+    // }
 
     fn deal(&mut self, mut ps: [&mut Player; 3]) {
         let mut next = true;
@@ -380,13 +426,18 @@ fn main() {
     println!("judger shuffle: {:?}", j.cards);
     println!("card num: {:?}", j.cards.len());
 
+    j.reserve(3);
+    println!("judger reserve: {:?}", j);
+
     let mut p1 = Player::new(1, "john");
     let mut p2 = Player::new(2, "mike");
     let mut p3 = Player::new(3, "alex");
 
     j.deal([&mut p1, &mut p2, &mut p3]);
 
-    println!("p1: {:?}", p1);
-    println!("p2: {:?}", p2);
-    println!("p3: {:?}", p3);
+    j.deal_lord(&mut p2);
+
+    println!("p1: {:?}, {}", p1, p1.cards.len());
+    println!("p2: {:?}, {}", p2, p2.cards.len());
+    println!("p3: {:?}, {}", p3, p3.cards.len());
 }
