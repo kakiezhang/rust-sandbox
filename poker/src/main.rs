@@ -2,11 +2,12 @@ use rand::prelude::*;
 use std::cmp::Ordering;
 use std::cmp::{PartialEq, PartialOrd};
 
+/// Deck of Cards
 #[derive(Debug)]
-struct Judger {}
+struct Deck {}
 
-impl Judger {
-    fn shuffle() -> Box<Vec<Card>> {
+impl Deck {
+    fn new(cnt: u8) -> Box<Vec<Card>> {
         let points = [
             Point::BigTwo(0),
             Point::Ace(0),
@@ -25,20 +26,76 @@ impl Judger {
         let colors = [Color::Spades, Color::Plum, Color::Square, Color::Hearts];
 
         let mut vs: Vec<Card> = Vec::new();
-        vs.push(Card::new(Point::GoldenJoker(0), Color::None));
-        vs.push(Card::new(Point::SilverJoker(0), Color::None));
 
-        for p in points {
-            for c in colors {
-                let t = Card::new(p, c);
-                vs.push(t);
+        let mut i = 0;
+
+        while i < cnt {
+            i += 1;
+
+            vs.push(Card::new(Point::GoldenJoker(0), Color::None));
+            vs.push(Card::new(Point::SilverJoker(0), Color::None));
+
+            for p in points {
+                for c in colors {
+                    let t = Card::new(p, c);
+                    vs.push(t);
+                }
             }
         }
 
-        let mut rng = rand::thread_rng();
-        vs.shuffle(&mut rng);
-
         Box::new(vs)
+    }
+}
+
+#[derive(Debug)]
+struct Player<'a> {
+    id: u8,
+    name: &'a str,
+    cards: Box<Vec<Card>>,
+}
+
+impl<'a> Player<'a> {
+    fn new(id: u8, name: &str) -> Player {
+        Player {
+            id,
+            name,
+            cards: Box::new(vec![]),
+        }
+    }
+}
+
+#[derive(Debug)]
+struct Judger {
+    cards: Box<Vec<Card>>,
+}
+
+impl Judger {
+    fn new(vs: Box<Vec<Card>>) -> Judger {
+        Judger { cards: vs }
+    }
+
+    fn shuffle(&mut self) {
+        let mut rng = rand::thread_rng();
+        self.cards.shuffle(&mut rng);
+    }
+
+    fn deal(&mut self, mut ps: [&mut Player; 3]) {
+        let mut next = true;
+        while next {
+            for p in ps.iter_mut() {
+                next = self.deal_one_card(p);
+            }
+        }
+    }
+
+    fn deal_one_card(&mut self, p: &mut Player) -> bool {
+        match self.cards.pop() {
+            Some(t) => {
+                p.cards.push(t);
+                true
+            }
+            None => false,
+        }
     }
 }
 
@@ -314,7 +371,22 @@ fn main() {
     println!("Pair: {:?}", pp);
     println!("pe: {:?}", pe);
 
-    let vs = Judger::shuffle();
-    println!("judger shuffle: {:?}", vs);
-    println!("card num: {:?}", vs.len());
+    let vs = Deck::new(1);
+    // println!("deck card: {:?}", vs);
+
+    let mut j = Judger::new(vs);
+    j.shuffle();
+
+    println!("judger shuffle: {:?}", j.cards);
+    println!("card num: {:?}", j.cards.len());
+
+    let mut p1 = Player::new(1, "john");
+    let mut p2 = Player::new(2, "mike");
+    let mut p3 = Player::new(3, "alex");
+
+    j.deal([&mut p1, &mut p2, &mut p3]);
+
+    println!("p1: {:?}", p1);
+    println!("p2: {:?}", p2);
+    println!("p3: {:?}", p3);
 }
