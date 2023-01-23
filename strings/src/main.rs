@@ -1,7 +1,8 @@
 use colored::Colorize;
 
 fn main() {
-    test0();
+    // test0();
+    test1();
 }
 
 fn color() {
@@ -34,4 +35,40 @@ fn test0() {
 
     println!("{:p} | {:p}", &s1, &s3);
     println!("{:p} | {:p}", s1.as_ptr(), s3.as_ptr());
+}
+
+fn test1() {
+    {
+        let a: String = "hello".to_string();
+        let b = lifetime_1(&a);
+    }
+
+    {
+        println!("lifetime_2() = {:?}", lifetime_2());
+    }
+
+    {
+        lifetime_3();
+    }
+}
+
+fn lifetime_1(a: &String) -> &str {
+    let b: &str = &a[0..2];
+    println!("b: {:?}", b);
+    b
+}
+
+fn lifetime_2() -> &'static str {
+    let a = "hello";
+    let b = &a[1..2];
+    b
+}
+
+fn lifetime_3() {
+    let mut a: &str = "world";
+    let b = a.to_owned();
+    println!("a: {:?}, b: {:?}", a, b);
+
+    a = &a[1..2];
+    println!("a: {:?}, b: {:?}", a, b);
 }
