@@ -10,6 +10,12 @@ impl AsRef<u8> for Animal {
     }
 }
 
+impl AsMut<u8> for Animal {
+    fn as_mut(&mut self) -> &mut u8 {
+        &mut self.age
+    }
+}
+
 fn main() {
     {
         let s = "hello";
@@ -45,7 +51,7 @@ fn main() {
     }
 
     {
-        let a = Animal {
+        let mut a = Animal {
             id: 100001,
             age: 10,
         };
@@ -53,5 +59,19 @@ fn main() {
 
         let a1 = a.as_ref();
         println!("a1: {:?}, {:p}", a1, a1);
+
+        let a2 = &a.age;
+        println!("a2: {:?}, {:p}", a2, a2);
+
+        // let a3 = &mut a;
+        // a3.age = 12;
+        // println!("a3: {:?}, {:p}", a3, a3);
+
+        *a.as_mut() = 20;
+        println!("a: {:?}, {:p}", a, &a);
+
+        let mut a4 = *a.as_mut();
+        a4 = 2;
+        println!("a4: {:?}, {:p}", a4, &a4);
     }
 }
