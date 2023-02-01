@@ -1,3 +1,15 @@
+#[derive(Debug)]
+struct Animal {
+    id: u32,
+    age: u8,
+}
+
+impl AsRef<u8> for Animal {
+    fn as_ref(&self) -> &u8 {
+        &self.age
+    }
+}
+
 fn main() {
     {
         let s = "hello";
@@ -19,5 +31,27 @@ fn main() {
 
         let s5 = &s;
         println!("s5: {:?}, {:?}", s5, s5.as_ptr());
+    }
+
+    {
+        let i = Box::new(5i8);
+        println!("i: {:?}, {:p}", i, i);
+
+        let i1: &i8 = i.as_ref();
+        println!("i1: {:?}, {:p}", i1, i1);
+
+        let i2: &i8 = &i;
+        println!("i2: {:?}, {:p}", i2, i2);
+    }
+
+    {
+        let a = Animal {
+            id: 100001,
+            age: 10,
+        };
+        println!("a: {:?}, {:p}", a, &a);
+
+        let a1 = a.as_ref();
+        println!("a1: {:?}, {:p}", a1, a1);
     }
 }
