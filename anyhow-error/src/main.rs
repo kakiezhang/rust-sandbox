@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, bail, Result};
 use thiserror::Error;
 
 fn main() {
@@ -16,6 +16,14 @@ fn main() {
 
         let b1 = foo_1(128);
         println!("b1: {:?}", b1);
+    }
+
+    {
+        let c0 = foo_2(128);
+        println!("c0: {:?}", c0);
+
+        let c1 = foo_2(10);
+        println!("c1: {:?}", c1);
     }
 }
 
@@ -42,9 +50,16 @@ fn foo_1(i: u8) -> Result<u8> {
 
 fn double_1(i: u8) -> IOResult<u8> {
     if i > 127 {
-        // Err(anyhow!("invalid double item {}", 127))
         Err(IOError::InvalidDoubleItem(127))
     } else {
         Ok(i + i)
     }
+}
+
+fn foo_2(i: u8) -> Result<()> {
+    if i > 127 {
+        // for early return
+        bail!(IOError::InvalidDoubleItem(128));
+    }
+    Ok(())
 }
