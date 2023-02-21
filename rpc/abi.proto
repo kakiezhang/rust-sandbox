@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package abi;
+
+enum Size {
+    SMALL = 0;
+    MEDIUM = 1;
+    LARGE = 2;
+}
+
+message Shirt {
+    string color = 1;
+    Size size = 2;
+}
+
+message Value {
+    oneof value {
+	    string str = 1;
+		bytes bs = 2;
+		int64 int = 3;
+		bool b = 4;
+	}
+}
+
+message CommandReq {
+    oneof req_data {
+	    Hget hget = 1;
+		Hset hset = 2;
+	}
+}
+
+message Hget {
+    string table = 1;
+    string key = 2;
+}
+
+message Hset {
+    string table = 1;
+	Kvpair pair = 2;
+}
+
+message Kvpair {
+    string key = 1;
+	Value val = 2;
+}
