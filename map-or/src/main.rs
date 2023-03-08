@@ -1,5 +1,6 @@
 fn main() {
-    foo1();
+    // foo1();
+    foo2();
 }
 
 fn foo1() {
@@ -15,4 +16,11 @@ fn foo1() {
         let c = a.map_or(100, |y| y.len());
         println!("c: {:?}", c);
     }
+}
+
+fn foo2() {
+    // let x = Some("world");
+    let x: Option<&str> = None;
+    let t = x.map_or_else(|| x.unwrap_or("a") > "g", |y| y > "w");
+    println!("t: {:?}", t);
 }
