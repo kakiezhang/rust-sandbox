@@ -5,6 +5,7 @@ version = 3
 [[package]]
 name = "aes-crypto"
 version = "0.1.0"
+source = "git+https://github.com/kakiezhang/aes-crypto.git#4fccb4c1b500042593c0300f0d57914560ff24be"
 
 [[package]]
 name = "blocking-chain"
